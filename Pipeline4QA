@@ -1,0 +1,55 @@
+pipeline {
+    agent none //each stage should have its own agent section
+	environment {
+        registry = "kss7/my-smart-app"
+        img = "$registry" + ":${UPSTREAM_NUMBER}"
+	   // img = "$registry" + ":latest"
+     //   registryCredential = 'docker-hub-login'
+    }
+    stages {
+        stage('Deploy-Run Application') {
+            agent {
+                label 'agentlinux'
+            }
+            steps {
+                script {
+					sh returnStatus: true, script: 'docker stop $(docker ps -a | grep ${JOB_NAME} | awk \'{print $1}\')'
+                    cont = docker.image("${img}").run('--rm -d --name ${JOB_NAME} -p 5000:5000')
+                }
+            }
+        }
+        stage('Testing') {
+            agent {
+                docker { image 'python:3.10-slim-buster' }
+            }
+			stages {
+				stage('Checkout Code') {
+					steps {
+						git branch: 'main', url: 'https://github.com/kss7/AwesomePyTests.git'
+						sh "ls -lat"
+						echo "done checkout"
+					}
+				}
+				stage('Run Tests') {
+					steps {
+						echo "Setup and run API Tests"
+						sh('chmod +x ./jenkinsscript.sh')
+						sh returnStatus: true, script: 'bash ./jenkinsscript.sh'
+						//sh('bash ./jenkinsscript.sh')
+					}
+				}
+				stage("publish junit report") {
+					steps{
+						echo "publishing junit"
+						junit skipMarkingBuildUnstable: true, testResults: 'xmlReport/output.xml'
+					}
+				}
+			}
+			post {
+				always {
+					cleanWs()
+				}
+			}
+        }
+    }
+}

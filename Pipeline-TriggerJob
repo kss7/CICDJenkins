@@ -1,0 +1,15 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Triggering another job') {
+            steps {
+                echo 'Hello World'
+                build wait: false, job: 'Pipeline-API-Tests', parameters: [
+                    string(name: 'whichEnv', value: 'Prod'),
+                    text(name: 'BuildId', value: 'UpstreamBuildId-' + String.valueOf(BUILD_NUMBER))
+                    ]
+            }
+        }
+    }
+}

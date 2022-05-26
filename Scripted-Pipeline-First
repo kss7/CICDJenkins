@@ -1,0 +1,16 @@
+node {
+	   stage('One') { 
+			echo "Stage-1"
+			echo env.NODE_NAME
+	   }
+	   stage('Two') {
+			echo "Stage-2"
+			echo "The build number is ${env.BUILD_NUMBER}"
+			sh 'python3 -V'
+	   }
+	   stage('Three') {
+			echo "Stage-3"
+			echo currentBuild.currentResult
+			sh 'ls -l'
+	   }
+}

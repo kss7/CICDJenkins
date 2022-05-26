@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+	environment {
+        //def img = ("${env.JOB_NAME}:${env.BUILD_ID}").toLowerCase()
+		registry = "kss7/my-smart-app"
+		img = "$registry" + ":${env.BUILD_ID}"
+		registryCredential = 'docker-hub-login' 
+    }	
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/kss7/SmartFlaskAPP.git'
+                sh 'ls -la'
+            }
+        }
+        stage('Build') {
+            steps {
+				echo "Building our image"
+				script {
+					dockerImg = docker.build("${img}")
+                }
+            }
+        }
+		stage('Release') {
+			steps{
+				script {
+					withDockerRegistry(credentialsId: 'docker-hub-login')  {
+						// some block
+						dockerImg.push()
+						dockerImg.push('latest')
+					}
+				}
+			}
+		}
+    }
+}

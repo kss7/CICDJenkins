@@ -1,0 +1,25 @@
+node {
+    withEnv(["REQD_PY=3.8.10",
+    "AUTH=true"]){
+		stage('Preparation') { 
+			echo "Prep for testing"
+			env.SYSPY = sh(returnStdout: true, script: 'python3 -V | awk \'{print $2}\'').trim()
+			echo "System python is:  ${env.SYSPY}"
+			}
+		stage('Code build') {
+					echo "Code building stage"
+				}
+		if ("${env.SYSPY}" == "${env.REQD_PY}") {		
+			stage('Tests in Python 3.10') {
+				  echo 'tests stage'
+				  sh 'python3 -V'
+				  echo "System python is:  ${env.SYSPY}"
+				}
+		}	
+		stage('Tests Reporting') {
+					echo "Test Reports stage"
+					sh 'ls -la'
+					echo currentBuild.currentResult
+				}
+	}
+}

@@ -1,0 +1,55 @@
+pipeline {
+    agent { label 'agentlinux' }
+	//options {
+     //   parallelsAlwaysFailFast()
+    //}
+    stages {
+		stage('Parallel-Build') {
+		failFast true
+			parallel {
+				stage('Back-end') {
+					agent {
+						docker { image 'maven:3.8.1-adoptopenjdk-11' }
+					}
+					steps {
+						sh 'mvn --version'
+						//sh 'exit 1'
+					}
+				}
+				stage('Front-end') {
+					agent {
+						docker { image 'node:16.13.1-alpine' }
+					}
+					steps {
+						sh 'node --version'
+						sleep(20 * Math.random())
+					}
+				}
+			}	
+		}
+		stage('Deploy') {
+            steps {
+                echo "Integrate Deploy build"
+				sh 'uname -a'
+                sleep(10 * Math.random())
+            }
+         }
+		 stage('Parallel-Tests') {
+           parallel {
+               stage('UI Tests') {
+                   steps {
+                       echo "Run GUI Tests"
+					   sh 'uname -a'
+					   //sh 'exit 1'
+                   }
+               }
+               stage('API Tests') {
+                   steps {
+                       echo "Run API Tests"
+                       sleep(10 * Math.random())
+                   }
+               }
+           }
+       }
+	}
+}

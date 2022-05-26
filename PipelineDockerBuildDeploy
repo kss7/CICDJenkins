@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+	environment {
+        def img = ("${env.JOB_NAME}:${env.BUILD_ID}").toLowerCase()
+    }	
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/kss7/SmartFlaskAPP.git'
+                sh 'ls -la'
+            }
+        }
+        stage('Build') {
+            steps {
+				echo "Building our image"
+				script {
+					dockerImg = docker.build("${img}")
+                }
+            }
+        }
+        stage('Deploy Run') {
+            steps {
+				echo "Deploy and Run"
+				script {
+					cont = docker.image("${img}").run('--rm -d -p 5000:5000')
+					sleep(5)
+                }
+            }
+        }
+        stage('Do Some Tests') {
+            steps {
+				echo "Do Some tests"
+            }
+        }
+    }
+   post {
+		 always  {
+            echo "In POST stage - Stop Docker image"
+            script {
+                if (cont) {
+                    echo "In Post - inside if condt"
+                    cont.stop()
+                }
+            }
+        }
+	}
+}

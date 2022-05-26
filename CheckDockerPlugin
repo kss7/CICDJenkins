@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+    environment {
+        cont = ''
+    }
+
+    stages {
+        stage('Checking unstable') {
+            steps {
+                script {
+                    currentBuild.result = "UNSTABLE"
+                }
+                
+            }
+        }
+        stage('Run Docker') {
+            steps {
+                script {
+                    img = 'httpd:2.4-alpine'
+                    cont = docker.image("${img}").run('-d --name ${JOB_NAME} -p 80:80')
+                    sleep(10)
+                    
+                }
+            }
+        }
+    }
+    
+    post {
+        always{
+            script {
+                if (cont && (currentBuild.result == "UNSTABLE" || currentBuild.result == "UNSCUCCESSFUL")) {
+                    cont.stop()
+                }
+            }
+        }
+    }
+}

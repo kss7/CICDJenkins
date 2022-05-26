@@ -1,0 +1,35 @@
+pipeline{
+    agent any
+    environment{
+          REQD_PY='3.8.10'
+        }
+    stages{
+        stage('Preparation'){
+            steps{
+                echo "Prep stage"
+				echo "The reqd Py version is ${env.REQD_PY}"
+				script {
+					env.SYSPY = sh(returnStdout: true, script: 'python3 -V | awk \'{print $2}\'').trim()
+					//for env var within script block - will be available outside the stage
+					echo "System Python version is:  ${env.SYSPY}"
+				}
+            }
+        }
+		stage('Test with Py 3.10'){
+			when {
+				expression {"${env.SYSPY}" == "${env.REQD_PY}"}
+			}
+            steps{
+                echo "Testing Stage"
+				sh 'python3 -V'
+				sh 'ls -l'
+            }
+        }
+		stage('Reporting'){
+            steps{
+                echo "Report Stage"
+				echo currentBuild.currentResult
+            }
+        }
+    }
+}
