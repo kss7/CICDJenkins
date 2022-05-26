@@ -1,0 +1,11 @@
+configparser
+crayons
+packaging
+pluggy
+py
+pycparser
+pyOpenSSL
+pyparsing
+PySocks
+pytest
+requests

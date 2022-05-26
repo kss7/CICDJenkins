@@ -1,0 +1,60 @@
+# Owner: Kumar S
+# 
+# Docker image for Jenkins Agent. 
+# Use for Java builds
+# Use SSH to connect to the agent, user:password is configured below.
+# Have Maven's settings.xml in the dir where you build the image
+# Or comment out the line
+
+FROM adoptopenjdk/openjdk11:jre-11.0.6_10
+
+#Control no question/dialog is asked during apt-get installs
+ARG DEBIAN_FRONTEND=noninteractive
+
+ARG user=jenkins
+ARG group=jenkins
+ARG uid=1000
+ARG gid=1000
+ARG JENKINS_HOME=/home/${user}
+
+# Making the package repository is up to date
+RUN apt-get update && \
+    apt-get -qy full-upgrade && \
+    apt-get install -qy git
+
+# Install a basic SSH server
+RUN  apt-get install -qy openssh-server && \
+
+# SSH login fix, else user will be logged-out instantly
+    sed -i 's|session    required     pam_loginuid.so|session    optional     pam_loginuid.so|g' /etc/pam.d/sshd && \
+    mkdir -p /var/run/sshd
+# Install maven
+RUN  apt-get install -qy maven
+# Cleaning old packages
+RUN apt-get -qy autoremove
+# Adding group and user jenkins to the image
+RUN groupadd -g ${gid} ${group} && \
+		  useradd -c "Jenkins user" -d /home/${user} -u ${uid} -g ${gid} -m ${user} && \
+# Set password for the jenkins user (alter this if reqd)
+		  echo "jenkins:jenkins" | chpasswd
+
+# Maven configurations
+RUN  mkdir ${JENKINS_HOME}/.m2  &&  chmod -R 777 ${JENKINS_HOME}
+RUN chown -R jenkins:jenkins ${JENKINS_HOME}/.m2
+ENV MAVEN_CONFIG "$JENKINS_HOME/.m2"
+# Have setting.xml in same folder else comment out
+#COPY settings.xml ${JENKINS_HOME}/.m2/
+
+ENV JENKINS_HOME=${JENKINS_HOME}
+ENV WORKDIR=${JENKINS_HOME}
+
+# Standard SSH port
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]
+
+
+LABEL \
+        maintainer="Kumar S" \
+        url="https://www.youtube.com/c/KumarS1"
+
