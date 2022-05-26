@@ -1,0 +1,22 @@
+//Pipeline using Dockefile
+pipeline {
+    agent {
+        dockerfile {
+            filename 'Dockerfile'
+	   // dir 'build'
+	    label 'cent7agent'
+	   // args '-v /tmp:/tmp'
+        }
+    }
+    stages {
+        stage('Build') {
+            steps {
+            	withEnv(["HOME=${env.WORKSPACE}"]) {
+			sh 'ls -l'
+			sh 'python -V'
+			sh 'pip install -r ./reqts.txt'
+		}	
+            }
+        }
+    }
+}

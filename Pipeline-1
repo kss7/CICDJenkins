@@ -1,0 +1,19 @@
+//Agent for entire pipeline stages
+pipeline {
+    agent {
+        docker { 
+            image 'python:3.11-rc-alpine'
+            //label 'cent7agent'
+            //registryUrl 'https://myregistry.com/'
+            //registryCredentialsId 'myPredefinedCredentialsInJenkins'
+            
+        }
+    }
+    stages {
+        stage('Test') {
+            steps {
+                sh 'python -V'
+            }
+        }
+    }
+}
