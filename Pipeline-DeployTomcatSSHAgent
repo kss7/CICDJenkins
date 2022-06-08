@@ -1,0 +1,41 @@
+pipeline {
+  agent any
+  tools {
+    maven 'maven'
+    //  jdk 'jdk11' 
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        echo "Check code is downloaded"
+        git branch: 'tomcatapp', url: 'https://github.com/kss7/CICDJenkins.git'
+        sh 'ls -la'
+      }
+    }
+    stage('build') {
+      steps {
+        echo "Build App"
+        sh 'mvn -e clean install'
+        sh 'ls'
+      }
+    }
+    stage('SSH-agent-Deploy') {
+      steps {
+        script {
+          echo 'Hello tomcat'
+          sshagent(['tomcatSSHKeys']) {
+            sh 'ssh -t -o StrictHostKeyChecking=no -l root 192.168.1.60 whoami'
+            sh 'scp -o StrictHostKeyChecking=no ./target/SuperCICDApp.war root@192.168.1.60:/opt/tomcat/webapps/.'
+            sh '''
+            ssh -t -o StrictHostKeyChecking=no root@192 .168 .1 .60 <<- EOF
+            ls -l
+            pwd
+            hostname -I
+            exit 0
+            <<EOF '''
+          }
+        }
+      }
+    }
+  }
+}
