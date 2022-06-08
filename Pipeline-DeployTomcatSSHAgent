@@ -27,7 +27,7 @@ pipeline {
             sh 'ssh -t -o StrictHostKeyChecking=no -l root 192.168.1.60 whoami'
             sh 'scp -o StrictHostKeyChecking=no ./target/SuperCICDApp.war root@192.168.1.60:/opt/tomcat/webapps/.'
             sh '''
-            ssh -t -o StrictHostKeyChecking=no root@192 .168 .1 .60 <<- EOF
+            ssh -t -o StrictHostKeyChecking=no root@192.168.1.60 <<- EOF
             ls -l
             pwd
             hostname -I
