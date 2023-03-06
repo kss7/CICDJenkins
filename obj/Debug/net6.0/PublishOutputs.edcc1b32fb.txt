@@ -1,0 +1,7 @@
+/root/dotnetwebapp/bin/Debug/net6.0/publish/dotnetwebapp
+/root/dotnetwebapp/bin/Debug/net6.0/publish/appsettings.Development.json
+/root/dotnetwebapp/bin/Debug/net6.0/publish/appsettings.json
+/root/dotnetwebapp/bin/Debug/net6.0/publish/dotnetwebapp.dll
+/root/dotnetwebapp/bin/Debug/net6.0/publish/dotnetwebapp.deps.json
+/root/dotnetwebapp/bin/Debug/net6.0/publish/dotnetwebapp.runtimeconfig.json
+/root/dotnetwebapp/bin/Debug/net6.0/publish/dotnetwebapp.pdb
