@@ -1,3 +1,4 @@
+
 FROM jenkins/jenkins:lts
 
 USER root
@@ -5,8 +6,9 @@ USER root
 RUN apt-get update && \
     apt-get install -y docker.io
 
-USER jenkins
+USER admin
 
+RUN usermod -aG docker admin
 
 # Use the .NET Core SDK image as the base image
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
